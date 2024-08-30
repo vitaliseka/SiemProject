@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>Add Log Source - SIEM</title>
+{% endblock title %}
+
+{% block content %}
+  <section class="p-6">
+    <div class="mb-3">
+      <h4 class="text-2xl font-bold dark:text-white">Add Log Source</h4>
+    </div>
+
+    <form action="{% url 'core:add_log_source' %}" method="POST">
+        {% csrf_token %}
+      <div class="mb-4">
+        <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
+        <input type="text" id="name" name="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Log Source Name" required />
+      </div>
+
+      <div class="mb-4">
+        <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
+        <textarea id="description" name="description" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Description here..."></textarea>
+      </div>
+      <div class="mb-4">
+        <label for="hostname" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Hostname</label>
+        <input type="url" id="hostname" name="hostname" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="flowbite.com" required />
+      </div>
+      <div class="grid gap-6 mb-4 md:grid-cols-2">
+        <div>
+          <label for="ip_address" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">IP Address</label>
+          <input type="text" id="ip_address" name="ip_address" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="192.1.1.6" required />
+        </div>
+        <div>
+          <label for="protocol" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Protocol</label>
+          <select id="protocol" name="protocol" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            
+            <option value="http" selected>HTTP</option>
+            <!--
+            <option selected>Select a protocol</option>
+               <option value="https">HTTPS</option>
+            <option value="ftp">FTP</option>
+            <option value="ftps">FTPS</option>
+            -->
+           
+          </select>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="log_format" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Log Format</label>
+        <select id="log_format" name="log_format" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+          <!--
+          <option selected>Select a format</option>
+          <option value="json">JSON</option>
+          <option value="xml">XML</option>
+          -->
+          
+          <option value="txt" selected>TXT</option>
+        </select>
+      </div>
+
+      <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
+    </form>
+
+  </section>
+{% endblock content %}

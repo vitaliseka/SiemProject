@@ -1,0 +1,522 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>Dashboard - SIEM</title>
+<link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+{% endblock title %}
+
+{% block content %}
+<section class="p-6">
+  <div class="flex">
+    <div>
+    <h4 class="mb-4 text-2xl font-bold dark:text-white">Dashboard</h4>
+  </div>
+  <div class="ml-auto">
+  <a href="{% url 'core:generate_security_report' user.id %}" class="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Generate report</a>
+ </div>
+  </div>
+  
+
+  <div class="grid grid-cols-3 gap-6 mb-6">
+    <div class="block w-full p-5 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+      <p class="mb-1 font-normal text-gray-700 dark:text-gray-400">Total Log Entries</p>
+      <h3 class="mb-1 text-3xl font-bold text-gray-900 dark:text-white">{{ total_log_entries }}</h3>
+      <span class="bg-red-100 text-red-800 text-xs font-medium inline-flex items-center px-2.5 py-1 rounded-md dark:bg-red-900 dark:text-red-300">
+        <svg class="w-2.5 h-2.5 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4" />
+        </svg>
+        42.5%
+      </span>
+    </div>
+    <div class="block w-full p-5 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+      <p class="mb-1 font-normal text-gray-700 dark:text-gray-400">Active Alerts</p>
+      <h3 class="mb-1 text-3xl font-bold text-gray-900 dark:text-white">{{ active_alerts }}</h3>
+      <span class="bg-green-100 text-green-800 text-xs font-medium inline-flex items-center px-2.5 py-1 rounded-md dark:bg-green-900 dark:text-green-300">
+        <svg class="w-2.5 h-2.5 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4" />
+        </svg>
+        42.5%
+      </span>
+    </div>
+    <div class="block w-full p-5 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+      <p class="mb-1 font-normal text-gray-700 dark:text-gray-400">System Health</p>
+      <h3 class="flex items-center text-3xl font-bold text-gray-900 dark:text-white">{{ system_health|floatformat:3 }}%</h3>
+    </div>
+  </div>
+
+  <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700">
+
+  <div class="grid grid-cols-3 gap-6 mb-6">
+
+    <div class="w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+      <div class="flex justify-between mb-3">
+        <div class="flex justify-center items-center">
+          <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white pe-1">Detection Trends</h5>
+
+        </div>
+
+      </div>
+
+      <div id="column-chart"></div>
+
+    </div>
+
+    <div class="w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+      <div class="flex justify-between mb-3">
+        <div class="flex justify-center items-center">
+          <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white pe-1">Alert Trends</h5>
+
+        </div>
+
+      </div>
+      <div class="flex justify-between">
+
+        <div class="flex items-center py-0.5 text-base font-semibold text-green-500 dark:text-green-500 text-center">
+          12%
+          <svg class="w-3 h-3 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4" />
+          </svg>
+        </div>
+      </div>
+      <div id="area-chart"></div>
+
+    </div>
+
+    <div class="w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+
+      <div class="flex justify-between mb-3">
+        <div class="flex justify-center items-center">
+          <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white pe-1">Alerts by Severity</h5>
+
+        </div>
+
+      </div>
+
+      <!-- Donut Chart -->
+      <div class="py-6" id="donut-chart"></div>
+
+    </div>
+
+    <div class="w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+      <div class="flex justify-between mb-3">
+        <div class="flex justify-center items-center">
+          <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white pe-1">Alerts by Log Source</h5>
+
+        </div>
+
+      </div>
+
+      <div id="alerts-by-log-source"></div>
+
+    </div>
+
+  </div>
+
+  <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700">
+
+  <div class="w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+    <h5 class="mb-3 text-xl font-bold leading-none text-gray-900 dark:text-white pe-1">Suspicious IP Activity</h5>
+
+    <div class="relative overflow-x-auto">
+      <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th scope="col" class="px-6 py-3">
+              IP Address
+            </th>
+            <th scope="col" class="px-6 py-3">
+              Activity Count
+            </th>
+
+          </tr>
+        </thead>
+        <tbody>
+          {% for ip in suspicious_ip_activity %}
+          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+              {{ ip.ip_address }}
+            </th>
+            <td class="px-6 py-4">
+              {{ ip.count }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</section>
+
+<script>
+  const options = {
+    colors: ["#1A56DB", "#FDBA8C"],
+    series: [{
+        name: "Detection Count",
+        color: "#1A56DB",
+        data: [{% for trend in detection_trends %}{{ trend.count }},{% endfor %}],
+      },
+     
+    ],
+    chart: {
+      type: "bar",
+      height: "280px",
+      fontFamily: "Inter, sans-serif",
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: "70%",
+        borderRadiusApplication: "end",
+        borderRadius: 6,
+      },
+    },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      style: {
+        fontFamily: "Inter, sans-serif",
+      },
+    },
+    states: {
+      hover: {
+        filter: {
+          type: "darken",
+          value: 1,
+        },
+      },
+    },
+    stroke: {
+      show: true,
+      width: 0,
+      colors: ["transparent"],
+    },
+    grid: {
+      show: false,
+      strokeDashArray: 4,
+      padding: {
+        left: 2,
+        right: 2,
+        top: -14
+      },
+    },
+    dataLabels: {
+      enabled: true,
+    },
+    legend: {
+      show: false,
+    },
+    xaxis: {
+      categories: [{% for trend in detection_trends %}"{{ trend.rule_name }}",{% endfor %}],
+      floating: false,
+      labels: {
+        show: true,
+        style: {
+          fontFamily: "Inter, sans-serif",
+          cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400'
+        }
+      },
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+    yaxis: {
+      show: true,
+    },
+    fill: {
+      opacity: 1,
+    },
+  }
+  if (document.getElementById("column-chart") && typeof ApexCharts !== 'undefined') {
+    const chart = new ApexCharts(document.getElementById("column-chart"), options);
+    chart.render();
+  }
+</script>
+<script>
+  const options2 = {
+    chart: {
+      height: "280px",
+      maxWidth: "100%",
+      type: "area",
+      fontFamily: "Inter, sans-serif",
+      dropShadow: {
+        enabled: false,
+      },
+      toolbar: {
+        show: false,
+      },
+    },
+    tooltip: {
+      enabled: true,
+      x: {
+        show: false,
+      },
+    },
+    fill: {
+      type: "gradient",
+      gradient: {
+        opacityFrom: 0.55,
+        opacityTo: 0,
+        shade: "#1C64F2",
+        gradientToColors: ["#1C64F2"],
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      width: 6,
+    },
+    grid: {
+      show: false,
+      strokeDashArray: 4,
+      padding: {
+        left: 2,
+        right: 2,
+        top: 0
+      },
+    },
+    series: [{
+      name: "Alert Count",
+      data: [{% for trend in alert_trends %}{{ trend.count }},{% endfor %}],
+      color: "#1A56DB",
+    }, ],
+    xaxis: {
+      categories: [{% for trend in alert_trends %}"{{ trend.day }}",{% endfor %}],
+      labels: {
+        show: true,
+      },
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+    yaxis: {
+      show: true,
+    },
+  }
+  if (document.getElementById("area-chart") && typeof ApexCharts !== 'undefined') {
+    const chart = new ApexCharts(document.getElementById("area-chart"), options2);
+    chart.render();
+  }
+</script>
+
+<script>
+  const options3 = {
+    colors: ["#1A56DB", "#FDBA8C"],
+    series: [{
+        name: "Alerts by Log Source",
+        color: "#1A56DB",
+        data: [{% for alerts in alerts_by_source %}{{ alerts.alert_count }},{% endfor %}],
+      },
+     
+    ],
+    chart: {
+      type: "bar",
+      height: "280px",
+      fontFamily: "Inter, sans-serif",
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: "70%",
+        borderRadiusApplication: "end",
+        borderRadius: 6,
+      },
+    },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      style: {
+        fontFamily: "Inter, sans-serif",
+      },
+    },
+    states: {
+      hover: {
+        filter: {
+          type: "darken",
+          value: 1,
+        },
+      },
+    },
+    stroke: {
+      show: true,
+      width: 0,
+      colors: ["transparent"],
+    },
+    grid: {
+      show: false,
+      strokeDashArray: 4,
+      padding: {
+        left: 2,
+        right: 2,
+        top: -14
+      },
+    },
+    dataLabels: {
+      enabled: true,
+    },
+    legend: {
+      show: false,
+    },
+    xaxis: {
+      categories: [{% for alerts in alerts_by_source %}"{{ alerts.log_entry__source__name }}",{% endfor %}],
+      floating: false,
+      labels: {
+        show: true,
+        style: {
+          fontFamily: "Inter, sans-serif",
+          cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400'
+        }
+      },
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+    yaxis: {
+      show: true,
+    },
+    fill: {
+      opacity: 1,
+    },
+  }
+  if (document.getElementById("alerts-by-log-source") && typeof ApexCharts !== 'undefined') {
+    const chart = new ApexCharts(document.getElementById("alerts-by-log-source"), options3);
+    chart.render();
+  }
+</script>
+
+<script>
+  const getChartOptions = () => {
+    return {
+      series: [{% for severity in alerts_by_severity %}{{ severity.count }},{% endfor %}],
+      colors: ["#1C64F2", "#16BDCA", "#FDBA8C", "#E74694"],
+      chart: {
+        height: 320,
+        width: "100%",
+        type: "donut",
+      },
+      stroke: {
+        colors: ["transparent"],
+        lineCap: "",
+      },
+      plotOptions: {
+        pie: {
+          donut: {
+            labels: {
+              show: true,
+              name: {
+                show: true,
+                fontFamily: "Inter, sans-serif",
+                offsetY: 20,
+              },
+              total: {
+                showAlways: true,
+                show: true,
+                label: "Alerts",
+                fontFamily: "Inter, sans-serif",
+                formatter: function(w) {
+                  const sum = w.globals.seriesTotals.reduce((a, b) => {
+                    return a + b
+                  }, 0)
+                  return sum
+                },
+              },
+              value: {
+                show: true,
+                fontFamily: "Inter, sans-serif",
+                offsetY: -20,
+                formatter: function(value) {
+                  return value
+                },
+              },
+            },
+            size: "80%",
+          },
+        },
+      },
+      grid: {
+        padding: {
+          top: -2,
+        },
+      },
+      labels: [{% for severity in alerts_by_severity %}"{{ severity.severity }}",{% endfor %}],
+      dataLabels: {
+        enabled: false,
+      },
+      legend: {
+        position: "bottom",
+        fontFamily: "Inter, sans-serif",
+      },
+      yaxis: {
+        labels: {
+          formatter: function(value) {
+            return value
+          },
+        },
+      },
+      xaxis: {
+        labels: {
+          formatter: function(value) {
+            return value
+          },
+        },
+        axisTicks: {
+          show: false,
+        },
+        axisBorder: {
+          show: false,
+        },
+      },
+    }
+  } 
+  if (document.getElementById("donut-chart") && typeof ApexCharts !== 'undefined') {
+    const chart = new ApexCharts(document.getElementById("donut-chart"), getChartOptions());
+    chart.render();
+    // Get all the checkboxes by their class name
+    const checkboxes = document.querySelectorAll('#devices input[type="checkbox"]');
+    // Function to handle the checkbox change event
+    function handleCheckboxChange(event, chart) {
+      const checkbox = event.target;
+      if (checkbox.checked) {
+        switch (checkbox.value) {
+          case 'desktop':
+            chart.updateSeries([15.1, 22.5, 4.4, 8.4]);
+            break;
+          case 'tablet':
+            chart.updateSeries([25.1, 26.5, 1.4, 3.4]);
+            break;
+          case 'mobile':
+            chart.updateSeries([45.1, 27.5, 8.4, 2.4]);
+            break;
+          default:
+            chart.updateSeries([55.1, 28.5, 1.4, 5.4]);
+        }
+      } else {
+        chart.updateSeries([35.1, 23.5, 2.4, 5.4]);
+      }
+    }
+    // Attach the event listener to each checkbox
+    checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener('change', (event) => handleCheckboxChange(event, chart));
+    });
+  }
+</script>
+{% endblock content %}
