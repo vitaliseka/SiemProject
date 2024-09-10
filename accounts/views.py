@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
@@ -64,6 +64,6 @@ def signout(request):
 
     Logs out the user and redirects to the login page.
     """
-    auth.logout(request)
+    logout(request)
     messages.info(request, "You have logged out from SIEM.")
     return redirect("accounts:signin")
