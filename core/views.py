@@ -184,6 +184,7 @@ def dashboard(request):
     )
     alerts_by_source = list(alerts_by_source)
     print(alerts_by_source)
+    alerts = Alert.objects.order_by('-triggered_at')[:5]
 
     context = {
         "user": user,
@@ -195,6 +196,7 @@ def dashboard(request):
         "alerts_by_severity": alerts_by_severity,
         "suspicious_ip_activity": suspicious_ip_activity,
         "alerts_by_source": alerts_by_source,
+        "alerts": alerts,
     }
     return render(request, template, context)
 
@@ -212,10 +214,13 @@ def log_sources(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    alerts = Alert.objects.order_by('-triggered_at')[:5]
+
     context = {
         "user": user,
         "log_sources": log_sources,
         "page_obj": page_obj,
+        "alerts": alerts,
     }
     template = "log_sources.html"
     return render(request, template, context)
@@ -235,10 +240,13 @@ def log_source(request, id):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    alerts = Alert.objects.order_by('-triggered_at')[:5]
+
     context = {
         "log_source": log_source,
         "log_files": log_files,
         "page_obj": page_obj,
+        "alerts": alerts,
     }
     template = "log_files.html"
     return render(request, template, context)
@@ -271,8 +279,11 @@ def add_log_source(request):
         return redirect("core:log_sources")
     else:  # Handles GET requests for the form
         template = "log_source_add.html"
+        alerts = Alert.objects.order_by('-triggered_at')[:5]
+
         context = {
             "user": user,
+            "alerts": alerts,
         }
         return render(request, template, context)
 
@@ -328,9 +339,12 @@ def add_log_file(request, id):
     else:
         # If the request method is not POST, it assumes it's a GET request to display the upload form.
         template = "upload_log.html"
+        alerts = Alert.objects.order_by('-triggered_at')[:5]
+
         context = {
             "user": user,
             "source": source,
+            "alerts": alerts,
         }
         return render(request, template, context)
 
@@ -361,12 +375,15 @@ def log_file(request, id):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    alerts = Alert.objects.order_by('-triggered_at')[:5]
+
     context = {
         "log_file": log_file,
         "log_entries": log_entries,
         "show_request_details": show_request_details,
         "show_mail_activity": show_mail_activity,
         "page_obj": page_obj,
+        "alerts": alerts,
     }
 
     template = "log_entries.html"
@@ -403,9 +420,12 @@ def alert(request, id):
     alert = Alert.objects.get(
         id=id
     )  # Fetches the Alert object based on the provided id from the URL.
+    alerts = Alert.objects.order_by('-triggered_at')[:5]
+
     context = {
         "user": user,
         "alert": alert,
+        "alerts": alerts,
     }
     template = "alert.html"
     return render(request, template, context)
@@ -538,11 +558,13 @@ def reports(request):
     paginator = Paginator(reports, 30)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
+    alerts = Alert.objects.order_by('-triggered_at')[:5]
 
     context = {
         "user": user,
         "reports": reports,
         "page_obj": page_obj,
+        "alerts": alerts,
     }
     template = "reports.html"
     return render(request, template, context)
@@ -555,9 +577,12 @@ def report(request, id):
     """
     user = request.user
     report = Report.objects.get(id=id)
+    alerts = Alert.objects.order_by('-triggered_at')[:5]
+
     context = {
         "user": user,
         "report": report,
+        "alerts": alerts,
     }
     template = "report.html"
     return render(request, template, context)

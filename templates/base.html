@@ -47,7 +47,22 @@
                 Security Alerts
               </div>
               <div id="alert-container" class="divide-y divide-gray-100 dark:divide-gray-700">
-                
+                {% for alert in alerts %}
+    <div class="divide-y divide-gray-100 dark:divide-gray-700">
+        <a href="/alert/{{ alert.id }}" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+            <div class="flex-shrink-0">
+                <svg class="w-10 h-10 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="w-full ps-3">
+                <p><span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{{ alert.rule_name }}</span></p>
+                <div class="text-gray-500 text-sm mb-1.5 mt-1.5 dark:text-gray-400"><span class="font-semibold text-gray-900 dark:text-white">{{ alert.message }}</span></div>
+                <p><span class="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">{{ alert.severity }}</span></p>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
               </div>
               <a href="{% url 'core:alerts' %}" class="block py-2 text-sm font-medium text-center text-gray-900 rounded-b-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white">
                 <div class="inline-flex items-center ">
